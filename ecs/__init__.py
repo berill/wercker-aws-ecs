@@ -37,11 +37,12 @@ class ECSService(object):
             raise Exception("Service '%s' is %s in cluster '%s'" % (service, failures[0].get('reason'), cluster))
         return response
 
-    def register_task_definition(self, family, file):
+    def register_task_definition(self, family, file, launch_type=None):
         """
         Register the task definition contained in the file
         :param family: the task definition name
         :param file: the task definition content file
+        :param launch_type: the task definition content file
         :return: the response or raise an Exception
         """
         if os.path.isfile(file) is False:
@@ -50,7 +51,10 @@ class ECSService(object):
         with open(file, 'r') as content_file:
             container_definitions = json.loads(content_file.read())
 
-        response = self.client.register_task_definition(family=family, containerDefinitions=container_definitions)
+        if not launch_type:
+            launch_type = 'EC2'
+
+        response = self.client.register_task_definition(family=family, containerDefinitions=container_definitions, requiresCompatibilities=[launch_type])
         task_definition = response.get('taskDefinition')
         if task_definition.get('status') is 'INACTIVE':
             arn = task_definition.get('taskDefinitionArn')
@@ -107,14 +111,16 @@ class ECSService(object):
         waiter.wait(cluster=cluster, services=[service])
         return self.describe_service(cluster=cluster, service=service)
 
-    def run_task(self, cluster, family):
+    def run_task(self, cluster, family, launch_type):
         """
         run the task
         :param cluster: the cluster name
         :param family: the task definition name
         :return: the response or raise an Exception
         """
-        response = self.client.run_task(cluster=cluster, taskDefinition=family)
+        if not launch_type:
+            launch_type = 'EC2'
+        response = self.client.run_task(cluster=cluster, taskDefinition=family, launchType=launch_type)
 
         failures = response.get('failures')
         if failures:
