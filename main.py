@@ -24,6 +24,7 @@ parser.add_argument('--task-definition-file', dest='task_definition_file', requi
 parser.add_argument('--service-name', dest='service_name', required=False)
 parser.add_argument('--minimum-running-tasks', type=int, dest='minimum_running_tasks', default=1, required=False)
 parser.add_argument('--launch-type', dest='launch_type', required=False)
+parser.add_argument('--execution-role-arn', dest='execution_role_arn', required=False)
 args = parser.parse_args()
 
 try:
@@ -49,7 +50,8 @@ try:
 
     # Step: Register New Task Definition
     h1("Step: Register New Task Definition")
-    response = ecs.register_task_definition(family=args.task_definition_name, file=args.task_definition_file, launch_type=args.launch_type)
+    response = ecs.register_task_definition(family=args.task_definition_name, file=args.task_definition_file, 
+        launch_type=args.launch_type, execution_role_arn=args.execution_role_arn)
     task_definition_arn = response.get('taskDefinition').get('taskDefinitionArn')
     success("Registering task definition '%s' succeeded" % task_definition_arn)
 
@@ -83,7 +85,8 @@ try:
     else:
         # Step: run task
         h1("Step: Run task")
-        response = ecs.run_task(cluster=args.cluster_name, family=args.task_definition_name)
+        response = ecs.run_task(cluster=args.cluster_name, family=args.task_definition_name, 
+            launch_type=args.launch_type, execution_role_arn=args.execution_role_arn)
         success("Task %s succeeded" % (response.get('tasks')[0].get('taskArn')))
 
 except Exception as e:

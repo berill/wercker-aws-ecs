@@ -79,7 +79,8 @@ if [ -z "$WERCKER_AWS_ECS_SERVICE_NAME" ]; then
     --cluster-name "$WERCKER_AWS_ECS_CLUSTER_NAME" \
     --task-definition-name "$WERCKER_AWS_ECS_TASK_DEFINITION_NAME" \
     --task-definition-file "$WERCKER_AWS_ECS_TASK_DEFINITION_FILE" \
-    --launch-type "$WERCKER_AWS_ECS_LAUNCH_TYPE"
+    --launch-type "$WERCKER_AWS_ECS_LAUNCH_TYPE" \
+    --execution-role-arn "$WERCKER_AWS_ECS_EXECUTION_ROLE_ARN"
 else
   python "$WERCKER_STEP_ROOT/main.py" \
     --key "$WERCKER_AWS_ECS_KEY" \
@@ -90,7 +91,8 @@ else
     --task-definition-file "$WERCKER_AWS_ECS_TASK_DEFINITION_FILE" \
     --service-name "$WERCKER_AWS_ECS_SERVICE_NAME" \
     --minimum-running-tasks "${WERCKER_AWS_ECS_MINIMUM_RUNNING_TASKS:-1}" \
-    --launch-type "$WERCKER_AWS_ECS_LAUNCH_TYPE"
+    --launch-type "$WERCKER_AWS_ECS_LAUNCH_TYPE" \
+    --execution-role-arn "$WERCKER_AWS_ECS_EXECUTION_ROLE_ARN"
 fi
 
 

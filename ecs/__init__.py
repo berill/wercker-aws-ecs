@@ -37,7 +37,7 @@ class ECSService(object):
             raise Exception("Service '%s' is %s in cluster '%s'" % (service, failures[0].get('reason'), cluster))
         return response
 
-    def register_task_definition(self, family, file, launch_type=None):
+    def register_task_definition(self, family, file, launch_type=None, execution_role_arn=None):
         """
         Register the task definition contained in the file
         :param family: the task definition name
@@ -51,10 +51,16 @@ class ECSService(object):
         with open(file, 'r') as content_file:
             container_definitions = json.loads(content_file.read())
 
+        network_mode=None
         if not launch_type:
             launch_type = 'EC2'
+        elif launch_type == 'FARGATE':
+            network_mode = 'awsvpc'
 
-        response = self.client.register_task_definition(family=family, containerDefinitions=container_definitions, requiresCompatibilities=[launch_type])
+
+        response = self.client.register_task_definition(family=family, 
+            containerDefinitions=container_definitions, requiresCompatibilities=[launch_type],
+            networkMode=network_mode, executionRoleArn=execution_role_arn)
         task_definition = response.get('taskDefinition')
         if task_definition.get('status') is 'INACTIVE':
             arn = task_definition.get('taskDefinitionArn')
@@ -111,16 +117,21 @@ class ECSService(object):
         waiter.wait(cluster=cluster, services=[service])
         return self.describe_service(cluster=cluster, service=service)
 
-    def run_task(self, cluster, family, launch_type):
+    def run_task(self, cluster, family, launch_type=None, execution_role_arn=None):
         """
         run the task
         :param cluster: the cluster name
         :param family: the task definition name
         :return: the response or raise an Exception
         """
+        network_mode=None
         if not launch_type:
             launch_type = 'EC2'
-        response = self.client.run_task(cluster=cluster, taskDefinition=family, launchType=launch_type)
+        elif launch_type == 'FARGATE':
+            network_mode = 'awsvpc'
+
+        response = self.client.run_task(cluster=cluster, taskDefinition=family, launchType=launch_type, 
+            networkMode=network_mode, executionRoleArn=execution_role_arn)
 
         failures = response.get('failures')
         if failures:

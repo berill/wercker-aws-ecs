@@ -92,17 +92,15 @@ The following example deploy an `hello` service on ECS :
 ```
 deploy:
   steps:
-    - 1science/aws-ecs:
-        key: aws_access_key_id
-        secret: aws_access_secret_id
-        cluster-name: staging
-        task-definition-name: hello-migrate-db
-        task-definition-file: /app/hello-migrate-db-task-definition.json
-    - 1science/aws-ecs:
-        key: aws_access_key_id
-        secret: aws_access_secret_id
-        cluster-name: staging
-        service-name: hello
-        task-definition-name: hello
-        task-definition-file: /app/hello-task-definition.json
+    - berill/aws-ecs:
+      key: $AWS_ACCESS_KEY
+      secret: $AWS_SECRET_KEY
+      region: $ECS_REGION
+      cluster-name: $ECS_CLUSTER_NAME
+      service-name: $ECS_SERVICE_NAME
+      task-definition-name: $ECS_TASK_DEFINITION_NAME
+      task-definition-file: $ECS_TASK_DEFINITION_FILE
+      minimum-running-tasks: $ECS_MINIMUM_TASKS
+      launch-type: $ECS_LAUNCH_TYPE
+      execution-role-arn: $ECS_EXECUTION_ROLE_ARN
 ```
