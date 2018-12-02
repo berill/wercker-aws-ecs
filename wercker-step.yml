@@ -1,5 +1,5 @@
 name: aws-ecs
-version: 0.2.12
+version: 0.2.13
 description: Deploy service to ECS
 keywords:
   - aws
@@ -30,6 +30,12 @@ properties:
     type: string
     required: true
   task-definition-file:
+    type: string
+    required: true
+  cpu:
+    type: string
+    required: true
+  memory:
     type: string
     required: true
 
